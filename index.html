@@ -1,0 +1,227 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>hello phaser!</title>
+        <script src="phaser.min.js"></script>
+        <script src="jquery-3.0.0.min.js"></script>
+    </head>
+    <body>
+
+    <script type="text/javascript">
+
+    window.onload = function() {
+
+        var game = new Phaser.Game(1200, 700, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+        var player, knife, player2;
+        var world; 
+        var state = 'idle';
+        var cursors;
+        var paredes;
+        function preload () {
+
+            game.load.image('world', 'img/world.png');
+            loadPlayerImages('idle');
+            loadPlayerImages('knife');
+            game.load.image('knife', 'img/weapons/knife.png');
+            game.load.image('pared', 'img/pared.png');
+
+        }
+
+
+
+        function create () {
+            cursors = game.input.keyboard.createCursorKeys();
+            world = game.add.sprite(0, 0, 'world');
+            player = game.add.sprite(300, 160, state+'p_d');
+            player2 = game.add.sprite(900, 300, 'idlep_d');
+            knife = game.add.sprite(700,200,'knife');
+            
+            player.enableBody = true;
+            player2.enableBody = true;
+            knife.enableBody = true;
+            //game.physics.startSystem(Phaser.Physics.ARCADE);
+            game.physics.startSystem(Phaser.Physics.ARCADE);
+            set_paredes();
+            game.physics.arcade.enable(player);
+            game.physics.arcade.enable(player2);
+            game.physics.arcade.enable(knife);
+            
+            //addPlayerAnimation();
+
+            //  Player physics properties. Give the little guy a slight bounce.
+            player.body.bounce.y = 0;
+            //player.body.gravity.y = 300;
+            player.body.collideWorldBounds = true;
+
+            //  Our two animations, walking left and right.
+            // player.animations.add('left', [0, 1, 2, 3], 10, true);
+            // player.animations.add('right', [5, 6, 7, 8], 10, true);
+
+        }
+
+        function update(){
+            //  Reset the players velocity (movement)
+            game.physics.arcade.collide(player, paredes);
+            game.physics.arcade.overlap(player, knife, getKnife, null, this);
+            game.physics.arcade.overlap(player, player2, playerCollide, null, this);
+            movementUpdate();
+        }
+
+        function getKnife (player, knife) {
+
+            // Removes the star from the screen
+            knife.kill();
+            state = 'knife';
+
+        }
+
+        function playerCollide(player, player2){
+            if(state == 'knife')
+                player2.kill();
+        }
+
+        function movementUpdate(){
+            player.body.velocity.x = 0;
+            player.body.velocity.y = 0;
+
+            if(cursors.left.isDown && cursors.down.isDown){
+                player.body.velocity.x = -100;
+                player.body.velocity.y = 100;
+                player.loadTexture(state+'p_ld');
+            }
+            else if(cursors.left.isDown && cursors.up.isDown){
+                player.body.velocity.x = -100;
+                player.body.velocity.y = -100;
+                player.loadTexture(state+'p_lu');
+            }
+            else if(cursors.right.isDown && cursors.up.isDown){
+                player.body.velocity.x = 100;
+                player.body.velocity.y = -100;
+                player.loadTexture(state+'p_ru');
+            }
+            else if(cursors.right.isDown && cursors.down.isDown){
+                player.body.velocity.x = 100;
+                player.body.velocity.y = 100;
+                player.loadTexture(state+'p_rd');
+                
+            }
+            else if (cursors.left.isDown)
+            {
+                player.body.velocity.x = -150;
+                player.loadTexture(state+'p_l');
+            }
+            else if (cursors.right.isDown)
+            {
+                player.body.velocity.x = 150;
+                player.loadTexture(state+'p_r');
+            }
+            else if (cursors.down.isDown){
+                player.body.velocity.y = 150;
+                player.loadTexture(state+'p_d');
+            }
+            else if (cursors.up.isDown){
+                player.body.velocity.y = -150;
+                player.loadTexture(state+'p_u');
+            }
+            else
+            {
+                //  Stand still
+                player.animations.stop();
+
+                player.frame = 4;
+            }
+        }
+
+        function set_paredes(){
+            paredes = game.add.group();
+            paredes.enableBody = true;  
+
+            // VERTICALES //
+
+            var pared = paredes.create(250, 75, 'pared');
+            pared.scale.setTo(86,1);
+            pared = paredes.create(244, 75, 'pared');
+            pared.scale.setTo(1,28);
+            pared = paredes.create(192, 350, 'pared');
+            pared.scale.setTo(1,32);
+            pared = paredes.create(408, 75, 'pared');
+            pared.scale.setTo(1,28);
+            pared = paredes.create(623, 75, 'pared');
+            pared.scale.setTo(1,10);
+            pared = paredes.create(623, 238, 'pared');
+            pared.scale.setTo(1,21);
+            pared = paredes.create(623, 508, 'pared');
+            pared.scale.setTo(1,17);
+            pared = paredes.create(787, 75, 'pared');
+            pared.scale.setTo(1,22);
+            pared = paredes.create(787, 405, 'pared');
+            pared.scale.setTo(1,10);
+            pared = paredes.create(787, 564, 'pared');
+            pared.scale.setTo(1,6);
+            pared = paredes.create(1110, 75, 'pared');
+            pared.scale.setTo(1,22);
+            pared = paredes.create(1110, 75, 'pared');
+            pared.scale.setTo(1,22);
+            pared = paredes.create(1058, 290, 'pared');
+            pared.scale.setTo(1,34);
+
+            // HORIZONTALES //
+
+            pared = paredes.create(192, 350, 'pared');
+            pared.scale.setTo(10,1);
+            pared = paredes.create(512, 345, 'pared');
+            pared.scale.setTo(12,1);
+            pared = paredes.create(349, 345, 'pared');
+            pared.scale.setTo(11,1);
+            pared = paredes.create(193, 670, 'pared');
+            pared.scale.setTo(44,1);
+            pared = paredes.create(633, 617, 'pared');
+            pared.scale.setTo(4,1);
+            pared = paredes.create(733, 617, 'pared');
+            pared.scale.setTo(33,1);
+            pared = paredes.create(787, 397, 'pared');
+            pared.scale.setTo(28,1);
+            pared = paredes.create(787, 293, 'pared');
+            pared.scale.setTo(11,1);
+            pared = paredes.create(950, 293, 'pared');
+            pared.scale.setTo(17,1);
+           
+
+            $.each(paredes.children, function(i, item){
+                item.body.immovable = true;
+            });
+
+        }
+
+        function addPlayerAnimation(){
+           
+            // IDLE //
+
+            player.animations.add('left', [6], 1);
+            player.animations.add('right', [2], 1);
+            player.animations.add('up', [0], 1);
+            player.animations.add('down', [4], 1);
+            player.animations.add('rightup', [1], 1);
+            player.animations.add('rightdown', [3], 1);
+            player.animations.add('leftup', [7], 1);
+            player.animations.add('leftdown', [5], 1);
+        }
+
+        function loadPlayerImages(mode){
+            game.load.image(mode+'p_d', 'img/playerStates/'+mode+'/down.png');
+            game.load.image(mode+'p_l', 'img/playerStates/'+mode+'/left.png');
+            game.load.image(mode+'p_u', 'img/playerStates/'+mode+'/up.png');
+            game.load.image(mode+'p_r', 'img/playerStates/'+mode+'/right.png');
+            game.load.image(mode+'p_ru', 'img/playerStates/'+mode+'/rightup.png');
+            game.load.image(mode+'p_rd', 'img/playerStates/'+mode+'/rightdown.png');
+            game.load.image(mode+'p_lu', 'img/playerStates/'+mode+'/leftup.png');
+            game.load.image(mode+'p_ld', 'img/playerStates/'+mode+'/leftdown.png');
+        }
+
+    };
+
+    </script>
+
+    </body>
+</html>
