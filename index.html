@@ -13,7 +13,7 @@
     window.onload = function() {
 
         var game = new Phaser.Game(1200, 700, Phaser.AUTO, '', { preload: preload, create: create, update: update });
-        var player, knife, player2;
+        var player, knife, axe, player2;
         var world; 
         var state = 'idle';
         var cursors;
@@ -24,6 +24,8 @@
             loadPlayerImages('idle');
             loadPlayerImages('knife');
             game.load.image('knife', 'img/weapons/knife.png');
+            loadPlayerImages('axe');
+            game.load.image('axe', 'img/weapons/axe.png');
             game.load.image('pared', 'img/pared.png');
 
         }
@@ -36,17 +38,19 @@
             player = game.add.sprite(300, 160, state+'p_d');
             player2 = game.add.sprite(900, 300, 'idlep_d');
             knife = game.add.sprite(700,200,'knife');
+            axe = game.add.sprite(300,500,'axe');
             
             player.enableBody = true;
             player2.enableBody = true;
             knife.enableBody = true;
+            axe.enableBody = true;
             //game.physics.startSystem(Phaser.Physics.ARCADE);
             game.physics.startSystem(Phaser.Physics.ARCADE);
             set_paredes();
             game.physics.arcade.enable(player);
             game.physics.arcade.enable(player2);
             game.physics.arcade.enable(knife);
-            
+            game.physics.arcade.enable(axe);
             //addPlayerAnimation();
 
             //  Player physics properties. Give the little guy a slight bounce.
@@ -64,20 +68,46 @@
             //  Reset the players velocity (movement)
             game.physics.arcade.collide(player, paredes);
             game.physics.arcade.overlap(player, knife, getKnife, null, this);
+            game.physics.arcade.overlap(player, axe, getAxe, null, this);
             game.physics.arcade.overlap(player, player2, playerCollide, null, this);
             movementUpdate();
         }
 
-        function getKnife (player, knife) {
-
+        function getKnife (player, knife, axe) {
+            if(state == 'axe'){
+                throwAxe(player,axe);
+            } 
+            
             // Removes the star from the screen
             knife.kill();
             state = 'knife';
 
         }
+        
+        function getAxe (player, axe , knife) {
+            if(state == 'knife'){
+                throwKnife(player,knife);
+            }            
+            // Removes the star from the screen
+            axe.kill();
+            state = 'axe';
+
+        }
+        
+        function throwKnife(player, knife){
+            knife = game.add.sprite(player.x,player.y,'knife');
+            knife.enableBody = true;
+            game.physics.arcade.enable(knife);
+        }
+        
+        function throwAxe(player, axe){
+            axe = game.add.sprite(player.x,player.y,'axe');
+            axe.enableBody = true;
+            game.physics.arcade.enable(axe);
+        }
 
         function playerCollide(player, player2){
-            if(state == 'knife')
+            if(state == 'knife' || state == 'axe')
                 player2.kill();
         }
 
